@@ -38,6 +38,7 @@ type Result struct {
 	ScanTime      string            `json:"scan_time"`
 	ScanDuration  string            `json:"scan_duration"`
 	Summary       ScanSummary       `json:"summary"`
+	Profile       string            `json:"profile"`
 }
 
 type ScanSummary struct {
@@ -66,6 +67,7 @@ func main() {
 	showVersion := flag.Bool("version", false, "show version")
 	report := flag.Bool("report", false, "buat HTML report")
 	output := flag.String("output", "webscan-report.html", "nama file HTML report")
+	profile := flag.String("profile", "full", "scan profile: quick atau full")
 
 	flag.Usage = func() {
 		fmt.Println("WebScan v" + version)
@@ -86,6 +88,11 @@ func main() {
 
 	flag.Parse()
 
+	if *profile != "quick" && *profile != "full" {
+		fmt.Fprintln(os.Stderr, "[!] Profile harus: quick atau full")
+		os.Exit(1)
+	}
+
 	if *showVersion {
 		fmt.Println("WebScan v" + version)
 		return
@@ -98,7 +105,7 @@ func main() {
 
 	target := flag.Arg(0)
 
-	result, err := scan(target, *timeout)
+	result, err := scan(target, *timeout, *profile)
 
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "[!] Error:", formatScanError(err))
@@ -145,7 +152,7 @@ func formatScanError(err error) string {
 	return err.Error()
 }
 
-func scan(target string, timeout time.Duration) (*Result, error) {
+func scan(target string, timeout time.Duration, profile string) (*Result, error) {
 	scanStart := time.Now()
 
 	if !strings.HasPrefix(target, "http://") &&
@@ -163,6 +170,8 @@ func scan(target string, timeout time.Duration) (*Result, error) {
 		HTTPS:   parsed.Scheme == "https",
 		Headers: make(map[string]string),
 	}
+
+	result.Profile = profile
 
 	// DNS lookup.
 	ips, err := net.LookupHost(parsed.Hostname())
@@ -221,8 +230,13 @@ func scan(target string, timeout time.Duration) (*Result, error) {
 	}
 
 	// Passive checks terhadap resource standar.
-	result.Robots = checkResource(client, resp.Request.URL, "/robots.txt")
-	result.Sitemap = checkResource(client, resp.Request.URL, "/sitemap.xml")
+	if profile == "full" {
+		result.Robots = checkResource(client, resp.Request.URL, "/robots.txt")
+		result.Sitemap = checkResource(client, resp.Request.URL, "/sitemap.xml")
+	} else {
+		result.Robots = "SKIPPED"
+		result.Sitemap = "SKIPPED"
+	}
 
 	chain, err := redirectChain(target, timeout)
 	if err == nil {
@@ -292,7 +306,7 @@ func tlsVersion(v uint16) string {
 func printResult(r *Result) {
 	fmt.Println()
 	fmt.Println("╔════════════════════════════════════════════╗")
-	fmt.Println("║              WEBSCAN v1.0                  ║")
+	fmt.Printf(" ║              WEBSCAN v%-10s                ║\n", version)
 	fmt.Println("╚════════════════════════════════════════════╝")
 
 	fmt.Println()
