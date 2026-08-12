@@ -88,6 +88,8 @@ func main() {
 		"save multi scan summary JSON",
 	)
 
+	compare := flag.Bool("compare", false, "compare scan result")
+
 	flag.Usage = func() {
 		fmt.Println("WebScan v" + version)
 		fmt.Println()
@@ -109,6 +111,47 @@ func main() {
 	}
 
 	flag.Parse()
+
+	if *compare {
+		if flag.NArg() < 2 {
+			fmt.Println("[!] Pakai: --compare old.json new.json")
+			return
+		}
+
+		oldResult, err := loadResultJSON(flag.Arg(0))
+		if err != nil {
+			fmt.Println("[!] Old file error:", err)
+			return
+		}
+
+		newResult, err := loadResultJSON(flag.Arg(1))
+		if err != nil {
+			fmt.Println("[!] New file error:", err)
+			return
+		}
+
+		diff := compareResults(oldResult, newResult)
+
+		fmt.Println("WebScan Compare")
+		fmt.Println("--------------------------------")
+
+		fmt.Printf("Score: %d -> %d\n",
+			diff.OldScore,
+			diff.NewScore,
+		)
+
+		fmt.Println("\nChanges:")
+		for _, c := range diff.Changes {
+			fmt.Println("[+]", c)
+		}
+
+		return
+	}
+
+	if *compare {
+		fmt.Println("Compare mode aktif")
+		return
+	}
 
 	_ = workers
 

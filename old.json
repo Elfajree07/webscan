@@ -1,0 +1,114 @@
+{
+  "target": "https://example.com",
+  "status": 200,
+  "status_text": "200 OK",
+  "final_url": "https://example.com",
+  "server": "cloudflare",
+  "content_type": "text/html",
+  "content_length": -1,
+  "response_time": "153ms",
+  "https": true,
+  "tls_version": "TLS 1.3",
+  "dns": [
+    "104.20.23.154",
+    "172.66.147.243",
+    "2606:4700:10::6814:179a",
+    "2606:4700:10::ac42:93f3"
+  ],
+  "robots": "NOT FOUND",
+  "sitemap": "NOT FOUND",
+  "security_headers": {
+    "Content-Security-Policy": "MISSING",
+    "Permissions-Policy": "MISSING",
+    "Referrer-Policy": "MISSING",
+    "Strict-Transport-Security": "MISSING",
+    "X-Content-Type-Options": "MISSING",
+    "X-Frame-Options": "MISSING"
+  },
+  "security": {
+    "present": 0,
+    "total": 6,
+    "score": 0,
+    "headers": [
+      {
+        "name": "Content-Security-Policy",
+        "value": "",
+        "present": false
+      },
+      {
+        "name": "Strict-Transport-Security",
+        "value": "",
+        "present": false
+      },
+      {
+        "name": "X-Content-Type-Options",
+        "value": "",
+        "present": false
+      },
+      {
+        "name": "X-Frame-Options",
+        "value": "",
+        "present": false
+      },
+      {
+        "name": "Referrer-Policy",
+        "value": "",
+        "present": false
+      },
+      {
+        "name": "Permissions-Policy",
+        "value": "",
+        "present": false
+      }
+    ]
+  },
+  "tls_info": {
+    "version": "TLS 1.3",
+    "subject": "example.com",
+    "issuer": "Cloudflare TLS Issuing ECC CA 3",
+    "expires": "2026-10-27T22:17:21Z",
+    "days_left": 76,
+    "dns_names": [
+      "example.com",
+      "*.example.com"
+    ]
+  },
+  "redirects": [
+    "https://example.com"
+  ],
+  "scan_time": "2026-08-12T14:54:27Z",
+  "scan_duration": "243ms",
+  "summary": {
+    "status_code": 200,
+    "https": true,
+    "tls_version": "TLS 1.3",
+    "security_headers": "0/6",
+    "redirect_count": 0,
+    "dns_count": 4,
+    "robots": "NOT FOUND",
+    "sitemap": "NOT FOUND"
+  },
+  "profile": "full",
+  "score": {
+    "score": 50,
+    "https": true,
+    "tls": true,
+    "headers": 0,
+    "total_headers": 6,
+    "robots": false,
+    "sitemap": false,
+    "grade": "Needs Improvement"
+  },
+  "cookies": [],
+  "technologies": [
+    {
+      "name": "Cloudflare",
+      "source": "server header"
+    }
+  ],
+  "metadata": {
+    "title": "Example Domain",
+    "description": "",
+    "generator": ""
+  }
+}
