@@ -39,6 +39,7 @@ type Result struct {
 	ScanDuration  string            `json:"scan_duration"`
 	Summary       ScanSummary       `json:"summary"`
 	Profile       string            `json:"profile"`
+	Score         SecurityScore     `json:"score"`
 }
 
 type ScanSummary struct {
@@ -300,6 +301,8 @@ func scan(target string, timeout time.Duration, profile string) (*Result, error)
 		Robots:          result.Robots,
 		Sitemap:         result.Sitemap,
 	}
+
+	result.Score = calculateScore(result)
 
 	return result, nil
 }

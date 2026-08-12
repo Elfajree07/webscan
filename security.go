@@ -68,3 +68,13 @@ func tlsVersionName(v uint16) string {
 		return "Unknown"
 	}
 }
+
+type SecurityScore struct {
+	Score        int  `json:"score"`
+	HTTPS        bool `json:"https"`
+	TLS          bool `json:"tls"`
+	Headers      int  `json:"headers"`
+	TotalHeaders int  `json:"total_headers"`
+	Robots       bool `json:"robots"`
+	Sitemap      bool `json:"sitemap"`
+}

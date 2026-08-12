@@ -83,6 +83,20 @@ small {
 </div>
 
 <div class="card">
+<h2>Security Score</h2>
+
+<table>
+<tr><th>Score</th><td>{{.Score.Score}} / 100</td></tr>
+<tr><th>HTTPS</th><td>{{.Score.HTTPS}}</td></tr>
+<tr><th>TLS</th><td>{{.Score.TLS}}</td></tr>
+<tr><th>Headers</th><td>{{.Score.Headers}} / {{.Score.TotalHeaders}}</td></tr>
+<tr><th>robots.txt</th><td>{{.Score.Robots}}</td></tr>
+<tr><th>sitemap.xml</th><td>{{.Score.Sitemap}}</td></tr>
+</table>
+
+</div>
+
+<div class="card">
 <h2>Target</h2>
 
 <table>
