@@ -18,6 +18,15 @@ A lightweight Go-based website assessment CLI for authorized security testing.
 - Custom report filename
 - Configurable timeout
 
+## Install
+
+```bash
+pkg update && pkg upgrade -y
+pkg install git -y
+git clone https://github.com/Elfajree07/webscan.git
+cd webscan
+```
+
 ## Build
 
 ```bash
