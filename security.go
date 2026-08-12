@@ -79,3 +79,10 @@ type SecurityScore struct {
 	Sitemap      bool   `json:"sitemap"`
 	Grade        string `json:"grade"`
 }
+
+type CookieInfo struct {
+	Name     string `json:"name"`
+	Secure   bool   `json:"secure"`
+	HttpOnly bool   `json:"http_only"`
+	SameSite string `json:"same_site"`
+}

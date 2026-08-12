@@ -40,6 +40,7 @@ type Result struct {
 	Summary       ScanSummary       `json:"summary"`
 	Profile       string            `json:"profile"`
 	Score         SecurityScore     `json:"score"`
+	Cookies       []CookieInfo      `json:"cookies"`
 }
 
 type ScanSummary struct {
@@ -271,6 +272,7 @@ func scan(target string, timeout time.Duration, profile string) (*Result, error)
 	result.Server = resp.Header.Get("Server")
 	result.ContentType = resp.Header.Get("Content-Type")
 	result.ContentLength = resp.ContentLength
+	result.Cookies = analyzeCookies(resp.Cookies())
 	result.Security = analyzeSecurityHeaders(resp.Header)
 
 	for _, header := range securityHeaders {
