@@ -87,6 +87,7 @@ small {
 
 <table>
 <tr><th>Target</th><td>{{.Target}}</td></tr>
+<tr><th>Scan Profile</th><td>{{.Profile}}</td></tr>
 <tr><th>Final URL</th><td>{{.FinalURL}}</td></tr>
 <tr><th>Status</th><td>{{.StatusText}}</td></tr>
 <tr><th>Server</th><td>{{.Server}}</td></tr>
