@@ -14,36 +14,37 @@ import (
 	"os"
 	"strings"
 	"time"
+	"webscan/scanner"
 )
 
 const version = "2.1.0"
 
 type Result struct {
-	Target        string            `json:"target"`
-	Status        int               `json:"status"`
-	StatusText    string            `json:"status_text"`
-	FinalURL      string            `json:"final_url"`
-	Server        string            `json:"server"`
-	ContentType   string            `json:"content_type"`
-	ContentLength int64             `json:"content_length"`
-	ResponseTime  string            `json:"response_time"`
-	HTTPS         bool              `json:"https"`
-	TLSVersion    string            `json:"tls_version,omitempty"`
-	DNS           []string          `json:"dns,omitempty"`
-	Robots        string            `json:"robots"`
-	Sitemap       string            `json:"sitemap"`
-	Headers       map[string]string `json:"security_headers"`
-	Security      SecuritySummary   `json:"security"`
-	TLSInfo       *TLSInfo          `json:"tls_info,omitempty"`
-	Redirects     []string          `json:"redirects,omitempty"`
-	ScanTime      string            `json:"scan_time"`
-	ScanDuration  string            `json:"scan_duration"`
-	Summary       ScanSummary       `json:"summary"`
-	Profile       string            `json:"profile"`
-	Score         SecurityScore     `json:"score"`
-	Cookies       []CookieInfo      `json:"cookies"`
-	Technologies  []TechInfo        `json:"technologies"`
-	Metadata      HTMLMetadata      `json:"metadata"`
+	Target        string               `json:"target"`
+	Status        int                  `json:"status"`
+	StatusText    string               `json:"status_text"`
+	FinalURL      string               `json:"final_url"`
+	Server        string               `json:"server"`
+	ContentType   string               `json:"content_type"`
+	ContentLength int64                `json:"content_length"`
+	ResponseTime  string               `json:"response_time"`
+	HTTPS         bool                 `json:"https"`
+	TLSVersion    string               `json:"tls_version,omitempty"`
+	DNS           []string             `json:"dns,omitempty"`
+	Robots        string               `json:"robots"`
+	Sitemap       string               `json:"sitemap"`
+	Headers       map[string]string    `json:"security_headers"`
+	Security      SecuritySummary      `json:"security"`
+	TLSInfo       *TLSInfo             `json:"tls_info,omitempty"`
+	Redirects     []string             `json:"redirects,omitempty"`
+	ScanTime      string               `json:"scan_time"`
+	ScanDuration  string               `json:"scan_duration"`
+	Summary       ScanSummary          `json:"summary"`
+	Profile       string               `json:"profile"`
+	Score         SecurityScore        `json:"score"`
+	Cookies       []CookieInfo         `json:"cookies"`
+	Technologies  []scanner.TechInfo   `json:"technologies"`
+	Metadata      scanner.HTMLMetadata `json:"metadata"`
 }
 
 type ScanSummary struct {
@@ -373,8 +374,8 @@ func scan(target string, timeout time.Duration, profile string) (*Result, error)
 	result.ContentLength = resp.ContentLength
 	body, _ := io.ReadAll(resp.Body)
 
-	result.Technologies = detectTechnologies(resp.Header, string(body))
-	result.Metadata = extractMetadata(string(body))
+	result.Technologies = scanner.DetectTechnologies(resp.Header, string(body))
+	result.Metadata = scanner.ExtractMetadata(string(body))
 	result.Cookies = analyzeCookies(resp.Cookies())
 	result.Security = analyzeSecurityHeaders(resp.Header)
 

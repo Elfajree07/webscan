@@ -1,4 +1,4 @@
-package main
+package scanner
 
 import (
 	"net/http"
@@ -17,7 +17,7 @@ type HTMLMetadata struct {
 	Generator   string `json:"generator"`
 }
 
-func detectTechnologies(h http.Header, body string) []TechInfo {
+func DetectTechnologies(h http.Header, body string) []TechInfo {
 	tech := make([]TechInfo, 0)
 
 	server := strings.ToLower(h.Get("Server"))
@@ -46,7 +46,7 @@ func detectTechnologies(h http.Header, body string) []TechInfo {
 	return tech
 }
 
-func extractMetadata(html string) HTMLMetadata {
+func ExtractMetadata(html string) HTMLMetadata {
 	meta := HTMLMetadata{}
 
 	title := regexp.MustCompile(`(?i)<title>(.*?)</title>`)
