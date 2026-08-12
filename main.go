@@ -66,6 +66,7 @@ func main() {
 	timeout := flag.Duration("timeout", 10*time.Second, "HTTP timeout")
 	showVersion := flag.Bool("version", false, "show version")
 	report := flag.Bool("report", false, "buat HTML report")
+	configFile := flag.String("config", "webscan.json", "file konfigurasi")
 	output := flag.String("output", "webscan-report.html", "nama file HTML report")
 	profile := flag.String("profile", "full", "scan profile: quick atau full")
 
@@ -90,6 +91,46 @@ func main() {
 	}
 
 	flag.Parse()
+
+	profileChanged := false
+	timeoutChanged := false
+	reportChanged := false
+	outputChanged := false
+
+	flag.Visit(func(f *flag.Flag) {
+		switch f.Name {
+		case "profile":
+			profileChanged = true
+		case "timeout":
+			timeoutChanged = true
+		case "report":
+			reportChanged = true
+		case "output":
+			outputChanged = true
+		}
+	})
+
+	cfg, err := loadConfig(*configFile)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "[!] Config error:", err)
+		os.Exit(1)
+	}
+
+	if !profileChanged {
+		*profile = cfg.Profile
+	}
+
+	if !timeoutChanged {
+		*timeout = cfg.Timeout
+	}
+
+	if !reportChanged {
+		*report = cfg.Report
+	}
+
+	if !outputChanged {
+		*output = cfg.Output
+	}
 
 	if *profile != "quick" && *profile != "full" {
 		fmt.Fprintln(os.Stderr, "[!] Profile harus: quick atau full")

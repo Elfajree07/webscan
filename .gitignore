@@ -2,3 +2,4 @@ webscan
 webscan-report.html
 *.html
 *.log
+webscan.json
