@@ -40,5 +40,16 @@ func calculateScore(r *Result) SecurityScore {
 		score.Score = 100
 	}
 
+	switch {
+	case score.Score >= 90:
+		score.Grade = "Excellent"
+	case score.Score >= 70:
+		score.Grade = "Good"
+	case score.Score >= 40:
+		score.Grade = "Needs Improvement"
+	default:
+		score.Grade = "Poor"
+	}
+
 	return score
 }

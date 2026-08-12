@@ -85,6 +85,17 @@ small {
 <div class="card">
 <h2>Security Score</h2>
 
+<div style="background:#ddd;border-radius:10px;height:20px;">
+<div style="width:{{.Score.Score}}%;height:20px;border-radius:10px;background:#4caf50;">
+</div>
+</div>
+
+<p>
+<b>{{.Score.Score}} / 100</b>
+-
+{{.Score.Grade}}
+</p>
+
 <table>
 <tr><th>Score</th><td>{{.Score.Score}} / 100</td></tr>
 <tr><th>HTTPS</th><td>{{.Score.HTTPS}}</td></tr>
