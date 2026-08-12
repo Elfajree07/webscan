@@ -45,6 +45,9 @@ type Result struct {
 	Cookies       []CookieInfo         `json:"cookies"`
 	Technologies  []scanner.TechInfo   `json:"technologies"`
 	Metadata      scanner.HTMLMetadata `json:"metadata"`
+	Resources     scanner.ResourceInfo `json:"resources"`
+	Forms         []scanner.FormInfo   `json:"forms"`
+	Assets        scanner.AssetInfo    `json:"assets"`
 }
 
 type ScanSummary struct {
@@ -373,6 +376,16 @@ func scan(target string, timeout time.Duration, profile string) (*Result, error)
 	result.ContentType = resp.Header.Get("Content-Type")
 	result.ContentLength = resp.ContentLength
 	body, _ := io.ReadAll(resp.Body)
+	result.Assets = scanner.ExtractAssets(string(body))
+	result.Technologies = append(
+		result.Technologies,
+		scanner.DetectFromAssets(result.Assets)...,
+	)
+	result.Forms = scanner.ExtractForms(string(body))
+	result.Resources = scanner.ExtractResources(
+		target,
+		string(body),
+	)
 
 	result.Technologies = scanner.DetectTechnologies(resp.Header, string(body))
 	result.Metadata = scanner.ExtractMetadata(string(body))

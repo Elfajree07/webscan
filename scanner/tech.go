@@ -62,3 +62,46 @@ func ExtractMetadata(html string) HTMLMetadata {
 
 	return meta
 }
+
+func DetectFromAssets(assets AssetInfo) []TechInfo {
+	result := []TechInfo{}
+
+	checks := map[string][]string{
+		"jQuery": {
+			"jquery",
+		},
+		"React": {
+			"react",
+		},
+		"Vue": {
+			"vue",
+		},
+		"Angular": {
+			"angular",
+		},
+		"Next.js": {
+			"_next",
+		},
+		"Bootstrap": {
+			"bootstrap",
+		},
+	}
+
+	for name, patterns := range checks {
+		for _, script := range assets.Scripts {
+			lower := strings.ToLower(script)
+
+			for _, pattern := range patterns {
+				if strings.Contains(lower, pattern) {
+					result = append(result, TechInfo{
+						Name:   name,
+						Source: "javascript asset",
+					})
+					break
+				}
+			}
+		}
+	}
+
+	return result
+}
