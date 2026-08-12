@@ -67,6 +67,7 @@ func main() {
 	timeout := flag.Duration("timeout", 10*time.Second, "HTTP timeout")
 	showVersion := flag.Bool("version", false, "show version")
 	report := flag.Bool("report", false, "buat HTML report")
+	initConfig := flag.Bool("init-config", false, "buat default config")
 	configFile := flag.String("config", "webscan.json", "file konfigurasi")
 	output := flag.String("output", "webscan-report.html", "nama file HTML report")
 	profile := flag.String("profile", "full", "scan profile: quick atau full")
@@ -92,6 +93,17 @@ func main() {
 	}
 
 	flag.Parse()
+
+	if *initConfig {
+		err := createDefaultConfig("webscan.json")
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "[!] Gagal membuat config:", err)
+			os.Exit(1)
+		}
+
+		fmt.Println("[+] Default config dibuat: webscan.json")
+		return
+	}
 
 	profileChanged := false
 	timeoutChanged := false
