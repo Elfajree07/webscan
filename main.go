@@ -71,10 +71,22 @@ func main() {
 	timeout := flag.Duration("timeout", 10*time.Second, "HTTP timeout")
 	showVersion := flag.Bool("version", false, "show version")
 	report := flag.Bool("report", false, "buat HTML report")
+	targetList := flag.String("list", "", "scan targets from file")
 	initConfig := flag.Bool("init-config", false, "buat default config")
 	configFile := flag.String("config", "webscan.json", "file konfigurasi")
 	output := flag.String("output", "webscan-report.html", "nama file HTML report")
 	profile := flag.String("profile", "full", "scan profile: quick atau full")
+	workers := flag.Int(
+		"workers",
+		3,
+		"jumlah worker scan",
+	)
+
+	summaryFile := flag.String(
+		"summary",
+		"",
+		"save multi scan summary JSON",
+	)
 
 	flag.Usage = func() {
 		fmt.Println("WebScan v" + version)
@@ -97,6 +109,47 @@ func main() {
 	}
 
 	flag.Parse()
+
+	_ = workers
+
+	if *targetList != "" {
+		targets, err := loadTargets(*targetList)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "[!] Error:", err)
+			os.Exit(1)
+		}
+
+		results := make([]*Result, 0, len(targets))
+
+		for i, target := range targets {
+			fmt.Printf("[%d/%d] Scanning %s...\n",
+				i+1, len(targets), target)
+
+			result, err := scan(target, *timeout, *profile)
+			if err != nil {
+				fmt.Printf("[!] %s: %v\n", target, err)
+				continue
+			}
+
+			results = append(results, result)
+		}
+
+		printMultiSummary(results)
+		if *summaryFile != "" {
+			err := writeSummary(
+				*summaryFile,
+				results,
+			)
+
+			if err != nil {
+				fmt.Println("[!] Summary error:", err)
+			} else {
+				fmt.Println("[+] Summary dibuat:", *summaryFile)
+			}
+		}
+
+		return
+	}
 
 	if *initConfig {
 		err := createDefaultConfig("webscan.json")
