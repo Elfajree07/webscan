@@ -16,7 +16,7 @@ import (
 	"time"
 )
 
-const version = "1.3.0"
+const version = "2.1.0"
 
 type Result struct {
 	Target        string            `json:"target"`
