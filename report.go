@@ -177,6 +177,31 @@ small {
 </div>
 
 <div class="card">
+<h2>Technologies</h2>
+
+<ul>
+{{range .Technologies}}
+<li>{{.Name}} ({{.Source}})</li>
+{{else}}
+<li>No technology detected</li>
+{{end}}
+</ul>
+
+</div>
+
+
+<div class="card">
+<h2>HTML Metadata</h2>
+
+<table>
+<tr><th>Title</th><td>{{.Metadata.Title}}</td></tr>
+<tr><th>Description</th><td>{{.Metadata.Description}}</td></tr>
+<tr><th>Generator</th><td>{{.Metadata.Generator}}</td></tr>
+</table>
+
+</div>
+
+<div class="card">
 <h2>Standard Resources</h2>
 
 <table>

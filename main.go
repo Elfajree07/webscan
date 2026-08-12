@@ -7,6 +7,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"net/url"
@@ -41,6 +42,8 @@ type Result struct {
 	Profile       string            `json:"profile"`
 	Score         SecurityScore     `json:"score"`
 	Cookies       []CookieInfo      `json:"cookies"`
+	Technologies  []TechInfo        `json:"technologies"`
+	Metadata      HTMLMetadata      `json:"metadata"`
 }
 
 type ScanSummary struct {
@@ -272,6 +275,10 @@ func scan(target string, timeout time.Duration, profile string) (*Result, error)
 	result.Server = resp.Header.Get("Server")
 	result.ContentType = resp.Header.Get("Content-Type")
 	result.ContentLength = resp.ContentLength
+	body, _ := io.ReadAll(resp.Body)
+
+	result.Technologies = detectTechnologies(resp.Header, string(body))
+	result.Metadata = extractMetadata(string(body))
 	result.Cookies = analyzeCookies(resp.Cookies())
 	result.Security = analyzeSecurityHeaders(resp.Header)
 
