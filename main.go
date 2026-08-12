@@ -1,8 +1,10 @@
 package main
 
 import (
+	"context"
 	"crypto/tls"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"net"
@@ -79,6 +81,7 @@ func main() {
 		fmt.Println("  webscan --json https://example.com")
 		fmt.Println("  webscan --report https://example.com")
 		fmt.Println("  webscan --report --output report.html https://example.com")
+		fmt.Println("  webscan --timeout 30s https://example.com")
 	}
 
 	flag.Parse()
@@ -96,8 +99,9 @@ func main() {
 	target := flag.Arg(0)
 
 	result, err := scan(target, *timeout)
+
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "[!] Error:", err)
+		fmt.Fprintln(os.Stderr, "[!] Error:", formatScanError(err))
 		os.Exit(1)
 	}
 
@@ -117,6 +121,28 @@ func main() {
 		printResult(result)
 	}
 
+}
+
+func formatScanError(err error) string {
+	if err == nil {
+		return ""
+	}
+
+	if errors.Is(err, context.DeadlineExceeded) {
+		return "connection timeout: server tidak merespons dalam batas waktu"
+	}
+
+	var netErr net.Error
+	if errors.As(err, &netErr) && netErr.Timeout() {
+		return "network timeout: koneksi melebihi batas waktu"
+	}
+
+	var urlErr *url.Error
+	if errors.As(err, &urlErr) {
+		return "request gagal: " + urlErr.Err.Error()
+	}
+
+	return err.Error()
 }
 
 func scan(target string, timeout time.Duration) (*Result, error) {
