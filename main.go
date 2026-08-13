@@ -20,34 +20,42 @@ import (
 const version = "2.1.0"
 
 type Result struct {
-	Target        string               `json:"target"`
-	Status        int                  `json:"status"`
-	StatusText    string               `json:"status_text"`
-	FinalURL      string               `json:"final_url"`
-	Server        string               `json:"server"`
-	ContentType   string               `json:"content_type"`
-	ContentLength int64                `json:"content_length"`
-	ResponseTime  string               `json:"response_time"`
-	HTTPS         bool                 `json:"https"`
-	TLSVersion    string               `json:"tls_version,omitempty"`
-	DNS           []string             `json:"dns,omitempty"`
-	Robots        string               `json:"robots"`
-	Sitemap       string               `json:"sitemap"`
-	Headers       map[string]string    `json:"security_headers"`
-	Security      SecuritySummary      `json:"security"`
-	TLSInfo       *TLSInfo             `json:"tls_info,omitempty"`
-	Redirects     []string             `json:"redirects,omitempty"`
-	ScanTime      string               `json:"scan_time"`
-	ScanDuration  string               `json:"scan_duration"`
-	Summary       ScanSummary          `json:"summary"`
-	Profile       string               `json:"profile"`
-	Score         SecurityScore        `json:"score"`
-	Cookies       []CookieInfo         `json:"cookies"`
-	Technologies  []scanner.TechInfo   `json:"technologies"`
-	Metadata      scanner.HTMLMetadata `json:"metadata"`
-	Resources     scanner.ResourceInfo `json:"resources"`
-	Forms         []scanner.FormInfo   `json:"forms"`
-	Assets        scanner.AssetInfo    `json:"assets"`
+	Target            string                 `json:"target"`
+	Status            int                    `json:"status"`
+	StatusText        string                 `json:"status_text"`
+	FinalURL          string                 `json:"final_url"`
+	Server            string                 `json:"server"`
+	ContentType       string                 `json:"content_type"`
+	ContentLength     int64                  `json:"content_length"`
+	ResponseTime      string                 `json:"response_time"`
+	HTTPS             bool                   `json:"https"`
+	TLSVersion        string                 `json:"tls_version,omitempty"`
+	DNS               []string               `json:"dns,omitempty"`
+	Robots            string                 `json:"robots"`
+	Sitemap           string                 `json:"sitemap"`
+	Headers           map[string]string      `json:"security_headers"`
+	Security          SecuritySummary        `json:"security"`
+	TLSInfo           *TLSInfo               `json:"tls_info,omitempty"`
+	Redirects         []string               `json:"redirects,omitempty"`
+	ScanTime          string                 `json:"scan_time"`
+	ScanDuration      string                 `json:"scan_duration"`
+	Summary           ScanSummary            `json:"summary"`
+	Profile           string                 `json:"profile"`
+	Score             SecurityScore          `json:"score"`
+	Findings          []Finding              `json:"findings"`
+	Intelligence      []Intelligence         `json:"intelligence"`
+	Risk              RiskSummary            `json:"risk"`
+	Cookies           []CookieInfo           `json:"cookies"`
+	Technologies      []scanner.TechInfo     `json:"technologies"`
+	Metadata          scanner.HTMLMetadata   `json:"metadata"`
+	Resources         scanner.ResourceInfo   `json:"resources"`
+	Endpoints         []scanner.EndpointInfo `json:"endpoints"`
+	Forms             []scanner.FormInfo     `json:"forms"`
+	Assets            scanner.AssetInfo      `json:"assets"`
+	JavaScript        []scanner.JSInfo       `json:"javascript_analysis"`
+	JSEndpoints       []scanner.JSEndpoint   `json:"js_endpoints"`
+	JSDependencies    []scanner.JSDependency `json:"javascript_dependencies"`
+	TechnologySummary []scanner.Fingerprint  `json:"technology_summary"`
 }
 
 type ScanSummary struct {
@@ -94,6 +102,8 @@ func main() {
 
 	compare := flag.Bool("compare", false, "compare scan result")
 
+	history := flag.String("history", "", "lihat history scan")
+
 	flag.Usage = func() {
 		fmt.Println("WebScan v" + version)
 		fmt.Println()
@@ -115,6 +125,13 @@ func main() {
 	}
 
 	flag.Parse()
+
+	if *history != "" {
+		if err := listHistory(*history); err != nil {
+			fmt.Println("[!] History error:", err)
+		}
+		return
+	}
 
 	if *compare {
 		if flag.NArg() < 2 {
@@ -377,6 +394,29 @@ func scan(target string, timeout time.Duration, profile string) (*Result, error)
 	result.ContentLength = resp.ContentLength
 	body, _ := io.ReadAll(resp.Body)
 	result.Assets = scanner.ExtractAssets(string(body))
+	result.JavaScript = scanner.AnalyzeJavaScript(
+		result.Assets,
+	)
+
+	result.JSEndpoints = scanner.AnalyzeJSAssets(
+		result.Assets,
+	)
+
+	for _, script := range result.Assets.Scripts {
+
+		content := scanner.FetchJSContent(script)
+
+		result.JSDependencies = append(
+			result.JSDependencies,
+			scanner.DetectJSDependencies(content)...,
+		)
+	}
+
+	result.Technologies = append(
+		result.Technologies,
+		scanner.FingerprintFromJS(result.JavaScript)...,
+	)
+
 	result.Technologies = append(
 		result.Technologies,
 		scanner.DetectFromAssets(result.Assets)...,
@@ -387,7 +427,16 @@ func scan(target string, timeout time.Duration, profile string) (*Result, error)
 		string(body),
 	)
 
+	result.Endpoints = scanner.ExtractEndpoints(
+		target,
+		string(body),
+	)
+
 	result.Technologies = scanner.DetectTechnologies(resp.Header, string(body))
+	result.Technologies = append(
+		result.Technologies,
+		scanner.DetectFromHTML(string(body))...,
+	)
 	result.Metadata = scanner.ExtractMetadata(string(body))
 	result.Cookies = analyzeCookies(resp.Cookies())
 	result.Security = analyzeSecurityHeaders(resp.Header)
@@ -434,6 +483,18 @@ func scan(target string, timeout time.Duration, profile string) (*Result, error)
 	}
 
 	result.Score = calculateScore(result)
+
+	result.Findings = generateFindings(result)
+
+	result.Risk = calculateRisk(
+		result.Findings,
+	)
+
+	result.Intelligence = buildIntelligence(result)
+
+	if err := saveHistory(result); err != nil {
+		fmt.Println("[!] History error:", err)
+	}
 
 	return result, nil
 }

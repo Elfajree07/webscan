@@ -13,6 +13,95 @@ func writeHTMLReport(r *Result, filename string) error {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>WebScan Report</title>
 
+<div class="card">
+
+<h2>History Timeline</h2>
+
+<table>
+<tr>
+<th>Target</th>
+<th>Score</th>
+<th>Time</th>
+</tr>
+
+{{range .History}}
+<tr>
+<td>{{.Target}}</td>
+<td>{{.Score}}</td>
+<td>{{.Time}}</td>
+</tr>
+{{end}}
+
+</table>
+
+</div>
+
+<h2>Risk Summary</h2>
+<p>
+Score: {{.Risk.Score}}<br>
+Level: {{.Risk.Level}}
+</p>
+
+<h2>Compare Latest</h2>
+
+{{if .Compare.HasPrevious}}
+
+<p>
+Previous Score:
+{{.Compare.OldScore}}
+<br>
+
+Current Score:
+{{.Compare.NewScore}}
+</p>
+
+<ul>
+{{range .Compare.Changes}}
+<li>{{.}}</li>
+{{end}}
+</ul>
+
+{{else}}
+
+<p>
+Belum ada scan sebelumnya.
+</p>
+
+{{end}}
+
+<h2>Findings</h2>
+<table border="1">
+<tr>
+<th>Title</th>
+<th>Severity</th>
+<th>Detail</th>
+</tr>
+
+{{range .Findings}}
+<tr>
+<td>{{.Title}}</td>
+<td>{{.Severity}}</td>
+<td>{{.Detail}}</td>
+</tr>
+{{end}}
+
+</table>
+
+<h2>Technologies</h2>
+<ul>
+{{range .Technologies}}
+<li>{{.Name}} - {{.Source}}</li>
+{{end}}
+</ul>
+
+
+<h2>Endpoints</h2>
+<ul>
+{{range .Endpoints}}
+<li>{{.Path}} ({{.Source}})</li>
+{{end}}
+</ul>
+
 <style>
 body {
 	font-family: system-ui, sans-serif;
@@ -237,5 +326,15 @@ small {
 	}
 	defer file.Close()
 
-	return tmpl.Execute(file, r)
+	data := struct {
+		*Result
+		History []HistoryItem
+		Compare CompareSummary
+	}{
+		Result:  r,
+		History: loadHistory(),
+		Compare: compareLatest(r),
+	}
+
+	return tmpl.Execute(file, data)
 }

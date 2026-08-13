@@ -105,3 +105,50 @@ func DetectFromAssets(assets AssetInfo) []TechInfo {
 
 	return result
 }
+
+func DetectFromHTML(body string) []TechInfo {
+	result := []TechInfo{}
+
+	patterns := map[string][]string{
+		"WordPress": {
+			"wp-content",
+			"wp-includes",
+		},
+		"Next.js": {
+			"__next_data__",
+			"/_next/",
+		},
+		"React": {
+			"data-reactroot",
+			"react",
+		},
+		"Angular": {
+			"ng-version",
+		},
+		"Bootstrap": {
+			"bootstrap",
+		},
+		"jQuery": {
+			"jquery",
+		},
+		"Shopify": {
+			"cdn.shopify.com",
+		},
+	}
+
+	lower := strings.ToLower(body)
+
+	for name, keys := range patterns {
+		for _, key := range keys {
+			if strings.Contains(lower, strings.ToLower(key)) {
+				result = append(result, TechInfo{
+					Name:   name,
+					Source: "html pattern",
+				})
+				break
+			}
+		}
+	}
+
+	return result
+}
