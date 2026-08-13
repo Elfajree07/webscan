@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 	"webscan/scanner"
@@ -89,7 +90,17 @@ func main() {
 	)
 	report := flag.Bool("report", false, "buat HTML report")
 	targetList := flag.String("list", "", "scan targets from file")
+	scopeFile := flag.String(
+		"scope",
+		"",
+		"file scope target",
+	)
 	initConfig := flag.Bool("init-config", false, "buat default config")
+	workspace := flag.Bool(
+		"workspace",
+		false,
+		"simpan hasil ke workspace",
+	)
 	configFile := flag.String("config", "webscan.json", "file konfigurasi")
 	output := flag.String("output", "webscan-report.html", "nama file HTML report")
 	profile := flag.String("profile", "full", "scan profile: quick atau full")
@@ -288,6 +299,34 @@ func main() {
 
 	target := flag.Arg(0)
 
+	if *scopeFile != "" {
+		scopes, err := loadScope(*scopeFile)
+
+		if err != nil {
+			fmt.Println("[!] Scope error:", err)
+			return
+		}
+
+		if !inScope(target, scopes) {
+			fmt.Println("[!] Target tidak ada di scope")
+			return
+		}
+	}
+
+	if *scopeFile != "" {
+		scopes, err := loadScope(*scopeFile)
+
+		if err != nil {
+			fmt.Println("[!] Scope error:", err)
+			return
+		}
+
+		if !inScope(target, scopes) {
+			fmt.Println("[!] Target tidak ada di scope")
+			return
+		}
+	}
+
 	result, err := scan(target, *timeout, *profile)
 
 	if err != nil {
@@ -295,10 +334,29 @@ func main() {
 		os.Exit(1)
 	}
 
+	if *workspace {
+		err := saveWorkspace(
+			target,
+			"recon.json",
+			result,
+		)
+
+		if err != nil {
+			fmt.Println("[!] Workspace error:", err)
+			return
+		}
+
+		fmt.Println("[+] Saved:", "workspace/"+sanitizeTarget(target))
+
+		createNotes(target)
+
+		updateWorkspaceIndex(target)
+
+	}
+
 	if *recon {
 		data := buildRecon(result)
 		printJSON(data)
-		return
 	}
 
 	if *report {
@@ -308,7 +366,16 @@ func main() {
 		}
 
 		fmt.Println("[+] Report dibuat:", *output)
-		return
+	}
+
+	if *workspace {
+		reportPath := filepath.Join(
+			"workspace",
+			sanitizeTarget(target),
+			"report.html",
+		)
+
+		writeHTMLReport(result, reportPath)
 	}
 
 	if *jsonMode {

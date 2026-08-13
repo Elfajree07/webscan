@@ -26,3 +26,37 @@ summary.json
 history/
 webscan
 webscan-report.html
+
+# scan results
+*.json
+webscan-report.html
+
+# workspace
+workspace/
+history/
+
+# local scope
+scope.txt
+
+# binaries
+webscan
+
+# OS
+.DS_Store
+
+# binaries
+webscan
+
+# scan output
+*.json
+*.html
+
+# workspace and history
+history/
+workspace/
+
+# local files
+scope.txt
+
+# logs
+*.log
