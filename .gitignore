@@ -3,3 +3,26 @@ webscan-report.html
 *.html
 *.log
 webscan.json
+
+# binary
+webscan
+
+# reports
+*.html
+
+# scan output
+*.json
+
+# history
+history/
+
+# temporary
+*.log
+
+old.json
+new.json
+test.json
+summary.json
+history/
+webscan
+webscan-report.html
