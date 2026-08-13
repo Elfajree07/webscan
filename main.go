@@ -82,6 +82,11 @@ func main() {
 	jsonMode := flag.Bool("json", false, "output JSON")
 	timeout := flag.Duration("timeout", 10*time.Second, "HTTP timeout")
 	showVersion := flag.Bool("version", false, "show version")
+	recon := flag.Bool(
+		"recon",
+		false,
+		"recon mode",
+	)
 	report := flag.Bool("report", false, "buat HTML report")
 	targetList := flag.String("list", "", "scan targets from file")
 	initConfig := flag.Bool("init-config", false, "buat default config")
@@ -288,6 +293,12 @@ func main() {
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "[!] Error:", formatScanError(err))
 		os.Exit(1)
+	}
+
+	if *recon {
+		data := buildRecon(result)
+		printJSON(data)
+		return
 	}
 
 	if *report {
@@ -612,8 +623,8 @@ func valueOrDash(s string) string {
 	return s
 }
 
-func printJSON(r *Result) {
-	out, err := json.MarshalIndent(r, "", "  ")
+func printJSON(data interface{}) {
+	out, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "[!] JSON error:", err)
 		return
