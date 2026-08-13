@@ -41,7 +41,7 @@ Build
 
 Clone repository:
 ```bash
-git clone https://github.com/USERNAME/webscan.git
+git clone https://github.com/Elfajree07/webscan.git
 cd webscan
 ```
 Build:
