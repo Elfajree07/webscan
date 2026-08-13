@@ -1,87 +1,287 @@
-# WebScan
+WebScan
 
-A lightweight Go-based website assessment CLI for authorized security testing.
+WebScan adalah tool web assessment berbasis Go untuk melakukan analisis informasi publik sebuah website. Tool ini mengumpulkan informasi seperti HTTP response, TLS, security header, teknologi yang digunakan, endpoint, metadata HTML, serta membuat laporan hasil scan.
 
-## Features
+Fitur
 
-- HTTP/HTTPS status
-- Response time
-- DNS resolution
-- TLS version
-- TLS certificate information
-- Security header presence
-- Redirect chain
-- robots.txt check
-- sitemap.xml check
+- HTTP status & response analysis
+- HTTPS & TLS information
+- DNS lookup
+- Redirect chain detection
+- Security header analysis
+  - Content-Security-Policy
+  - Strict-Transport-Security
+  - X-Content-Type-Options
+  - X-Frame-Options
+  - Referrer-Policy
+  - Permissions-Policy
+- Cookie analysis
+- Technology fingerprinting
+- HTML metadata extraction
+- JavaScript & asset analysis
+- Endpoint inventory
+- Risk scoring
+- Security findings
 - JSON output
 - HTML report
-- Custom report filename
-- Configurable timeout
+- Scan history
+- Compare hasil scan
+- Multi target scan
 
-## Install
+---
 
+Installation
+
+Requirements
+
+- Go 1.20+
+- Linux / macOS / Termux
+
+Build
+
+Clone repository:
 ```bash
-pkg update && pkg upgrade -y
-pkg install git -y
-git clone https://github.com/Elfajree07/webscan.git
+git clone https://github.com/USERNAME/webscan.git
 cd webscan
 ```
-
-## Build
-
+Build:
 ```bash
 go build -o webscan .
 ```
+Test instalasi:
+```bash
+./webscan --version
+```
+Output:
 
-Usage
+WebScan v2.x.x
 
+---
+
+Basic Usage
+
+Scan website
 ```bash
 ./webscan https://example.com
 ```
+Output akan menampilkan:
 
-JSON:
+- Target
+- Status HTTP
+- Server
+- HTTPS
+- TLS
+- DNS
+- Security header
+- Score
 
+---
+
+JSON Output
+
+Untuk mendapatkan hasil dalam format JSON:
 ```bash
 ./webscan --json https://example.com
 ```
+Simpan hasil:
+```bash
+./webscan --json https://example.com > scan.json
+```
+---
 
-HTML report:
+HTML Report
 
+Membuat laporan HTML:
 ```bash
 ./webscan --report https://example.com
 ```
+Default output:
 
-Custom report:
+webscan-report.html
 
+Custom nama report:
 ```bash
-./webscan --report --output example-report.html https://example.com
+./webscan --report --output report.html https://example.com
 ```
+Report berisi:
 
-Version:
+- Risk summary
+- Security score
+- Findings
+- Technologies
+- Endpoints
+- Metadata
+- TLS information
+- History timeline
+- Compare result
 
+---
+
+Scan Profile
+
+Quick Scan
+
+Scan dasar:
 ```bash
-./webscan --version
+./webscan --profile quick https://example.com
 ```
+Full Scan
 
-## NOTES
-
-WebScan is intended for passive/low-impact assessment of
-systems you own or have explicit permission to test.
-
-The security-header score indicates only whether selected
-headers were observed. It is not a complete measure of website
-security.
-
-## License
-
-MIT
-
-
-## Cek semuanya
-
+Scan lengkap:
 ```bash
-gofmt -w *.go
+./webscan --profile full https://example.com
+```
+Default profile:
+
+full
+
+---
+
+Compare Scan
+
+Membandingkan dua hasil scan:
+
+Scan pertama:
+```bash
+./webscan --json https://example.com > old.json
+```
+Scan kedua:
+```bash
+./webscan --json https://example.com > new.json
+```
+Compare:
+```bash
+./webscan --compare old.json new.json
+```
+Contoh output:
+
+WebScan Compare
+--------------------------------
+Score: 50 -> 75
+
+Changes:
+[+] Security score meningkat
+
+---
+
+Multiple Target Scan
+
+Buat file target:
+```bash
+nano targets.txt
+```
+Isi:
+
+https://example.com
+https://example.org / ini hanya contohnya!
+
+Jalankan:
+```bash
+./webscan --list targets.txt
+```
+Simpan summary:
+```bash
+./webscan --list targets.txt --summary summary.json
+```
+---
+
+Configuration
+
+Buat konfigurasi default:
+```bash
+./webscan --init-config
+```
+File:
+
+webscan.json
+
+Gunakan config:
+```bash
+./webscan --config webscan.json https://example.com
+```
+---
+
+Command Reference
+
+Command| Fungsi
+"--version"| Menampilkan versi
+"--json"| Output JSON
+"--report"| Membuat HTML report
+"--output"| Nama file report
+"--profile"| Mode quick/full
+"--compare"| Membandingkan scan
+"--list"| Scan banyak target
+"--summary"| Simpan summary
+"--config"| Menggunakan config
+"--init-config"| Membuat config
+"--timeout"| Mengatur timeout
+"--workers"| Jumlah worker
+
+---
+
+Project Structure
+
+webscan/
+├── main.go
+├── scanner/
+│   ├── technology detection
+│   ├── asset analysis
+│   └── endpoint extraction
+├── report.go
+├── findings.go
+├── risk.go
+├── score.go
+├── history.go
+├── compare.go
+├── config.go
+└── go.mod
+
+---
+
+Example Workflow
+
+Scan website:
+```bash
+./webscan --json https://example.com > first.json
+```
+Buat report:
+```bash
+./webscan --report https://example.com
+```
+Beberapa waktu kemudian scan ulang:
+```bash
+./webscan --json https://example.com > second.json
+```
+Bandingkan:
+```bash
+./webscan --compare first.json second.json
+```
+---
+
+Development
+
+Run test:
+```bash
 go test ./...
-go build -o webscan .
-./webscan --version
 ```
+Format code:
+```bash
+gofmt -w *.go scanner/*.go
+```
+Build:
+```bash
+go build -o webscan .
+```
+---
+
+Disclaimer
+
+WebScan dibuat untuk tujuan edukasi, audit keamanan yang memiliki izin, dan monitoring aset milik sendiri.
+
+Gunakan tool secara bertanggung jawab dan selalu pastikan memiliki izin sebelum melakukan scanning terhadap sistem pihak lain.
+
+---
+
+License
+
+MIT License
